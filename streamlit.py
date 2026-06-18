@@ -45,15 +45,9 @@ if submit_button:
 
         # Board Portion Evaluation Adjustments
         if board == "CBSE":
-            predicted_score += 10  # CBSE focus on continuous application questions
+            predicted_score += 50  # CBSE focus on continuous application questions
         else:
             predicted_score += 1  # State Board direct concept formatting
-
-        # Subject difficulty portion adjustments
-        if subject in ["Mathematics", "physics"]:
-            predicted_score -= 1  # These complex portions require extra rigorous revision
-        else:
-            predicted_score += 2
 
         # Clamp the score dynamically between 0 and 100
         predicted_score = min(100, max(0, round(predicted_score)))
