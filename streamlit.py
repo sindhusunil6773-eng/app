@@ -1,130 +1,101 @@
+import streamlit as st
 
-import tkinter as tk
-from tkinter import ttk
-from tkinter import messagebox
+# --- Page Configuration ---
+st.set_page_config(page_title="Student Exam Score Predictor", page_icon="📊", layout="centered")
 
-def analyze_and_predict():
-    # 1. Retrieve data from the input fields
-    name = name_entry.get().strip()
-    age_str = age_entry.get().strip()
-    hours_str = hours_entry.get().strip()
-    student_class = class_combobox.get()
-    board = board_combobox.get()
-    subject = subject_combobox.get()
+# --- App Header ---
+st.title("📊 Student Exam Score Predictor")
+st.write("Enter your academic details below to get a detailed portion analysis and score prediction.")
+st.markdown("---")
 
-    # 2. Validation: Ensure no fields are left blank
-    if not name or not age_str or not hours_str or not student_class or not board or not subject:
-        messagebox.showerror("Error", "Please fill in all the details before submitting!")
-        return
-
-    try:
-        age = int(age_str)
-        hours = float(hours_str)
-    except ValueError:
-        messagebox.showerror("Error", "Age must be a number and Study Hours must be a valid number (e.g., 4 or 4.5)!")
-        return
-
-    # 3. Interactive Analysis Formula
-    # Start with a base score of 40 marks
-    predicted_score = 40
-
-    # Add marks based on hours studied (e.g., 7.5 marks per hour)
-    predicted_score += (hours * 7.5)
-
-    # Slight adjustments based on curriculum variations (CBSE vs State Portions)
-    if board == "CBSE":
-        predicted_score += 2  # Continuous evaluation adjustment
-    else:
-        predicted_score += 1  # State board structural formatting adjustment
-
-    # Subject difficulty balance factor
-    if subject in ["Mathematics", "Science"]:
-        predicted_score -= 2  # Complex portions require more rigor
-    else:
-        predicted_score += 2
-
-    # Restrict score to a logical maximum of 100 and minimum of 0
-    predicted_score = min(100, max(0, round(predicted_score)))
-
-    # 4. Generate Personalized Performance Feedback
-    if predicted_score >= 90:
-        feedback = "Outstanding analysis! Your dedicated study hours match top-tier performance standards."
-    elif predicted_score >= 75:
-        feedback = "Excellent effort. Mastering complex topics will easily push your score past 90."
-    elif predicted_score >= 50:
-        feedback = "Good foundation. Try increasing your focus by 1-2 hours daily to boost your rank."
-    else:
-        feedback = "Requires attention. We highly recommend mapping out your subject portions to build momentum."
-
-    # 5. Display the Analysis Report inside the app window
-    report_text = (
-        f"--- ANALYSIS REPORT ---\n\n"
-        f"Student Name: {name}\n"
-        f"Age: {age} | Class: {student_class}\n"
-        f"Board Format: {board} | Subject Focus: {subject}\n"
-        f"Tracked Performance: {hours} Hours/Day\n\n"
-        f"🎯 PREDICTED EXAM SCORE: {predicted_score} / 100\n\n"
-        f"Feedback: \"{feedback}\""
-    )
+# --- Form Inputs ---
+# Using a form container to handle data neatly on submit
+with st.form("prediction_form"):
+    st.subheader("📝 Student Information")
     
-    result_label.config(text=report_text)
-    result_frame.pack(pady=15, fill="x")
+    # Name and Age side-by-side
+    col1, col2 = st.columns(2)
+    with col1:
+        name = st.text_input("Student Name:", placeholder="e.g., Urvashi")
+    with col2:
+        age = st.number_input("Age:", min_value=5, max_value=25, value=15, step=1)
 
-# --- UI Setup ---
-root = tk.Tk()
-root.title("Student Exam Score Predictor")
-root.geometry("480x600")
-root.configure(bg="#f4f7f6")
+    # Class, Board, and Subject dropdowns
+    col3, col4, col5 = st.columns(3)
+    with col3:
+        student_class = st.selectbox("Class/Year:", ["Class 9", "Class 10", "Class 11", "Class 12"])
+    with col4:
+        board = st.selectbox("Education Board:", ["CBSE", "State Board"])
+    with col5:
+        subject = st.selectbox("Subject Focus:", ["Mathematics", "physics", "English","chemistry","biology" ])
 
-# Title Header
-title_label = tk.Label(root, text="📊 Exam Score Predictor", font=("Segoe UI", 18, "bold"), bg="#f4f7f6", fg="#2c3e50")
-title_label.pack(pady=15)
+    # Study hours input
+    hours = st.number_input("Daily Study Hours:", min_value=0.0, max_value=16.0, value=4.0, step=0.5, 
+                            help="How many hours do you spend studying this subject every day?")
 
-# Form Container Frame
-form_frame = tk.Frame(root, bg="white", padx=20, pady=20, bd=1, relief="solid")
-form_frame.pack(pady=10, padx=20, fill="both", expand=True)
+    # Submit Button inside the form
+    submit_button = st.form_submit_button(label="Analyze & Predict Score")
 
-# Grid Layout for Inputs
-labels_font = ("Segoe UI", 10, "bold")
+# --- Interactive Logic & Analysis on Click ---
+if submit_button:
+    if not name.strip():
+        st.error("Please enter the student's name before submitting!")
+    else:
+        # Core Formula Logic
+        # Start with a base score of 40 marks
+        predicted_score = 40
 
-# Student Name
-tk.Label(form_frame, text="Student Name:", font=labels_font, bg="white").grid(row=0, column=0, sticky="w", pady=5)
-name_entry = tk.Entry(form_frame, font=("Segoe UI", 10), width=25)
-name_entry.grid(row=0, column=1, pady=5, padx=10)
+        # Add points based on hours studied (7.5 marks per hour)
+        predicted_score += (hours * 7.5)
 
-# Age
-tk.Label(form_frame, text="Age:", font=labels_font, bg="white").grid(row=1, column=0, sticky="w", pady=5)
-age_entry = tk.Entry(form_frame, font=("Segoe UI", 10), width=25)
-age_entry.grid(row=1, column=1, pady=5, padx=10)
+        # Board Portion Evaluation Adjustments
+        if board == "CBSE":
+            predicted_score += 3  # CBSE focus on continuous application questions
+        else:
+            predicted_score += 1  # State Board direct concept formatting
 
-# Class Select Dropdown
-tk.Label(form_frame, text="Class/Grade:", font=labels_font, bg="white").grid(row=2, column=0, sticky="w", pady=5)
-class_combobox = ttk.Combobox(form_frame, values=["Class 9", "Class 10", "Class 11", "Class 12"], width=22, state="readonly")
-class_combobox.grid(row=2, column=1, pady=5, padx=10)
+        # Subject difficulty portion adjustments
+        if subject in ["Mathematics", "physics"]:
+            predicted_score -= 2  # These complex portions require extra rigorous revision
+        else:
+            predicted_score += 2
 
-# Board Selection Dropdown
-tk.Label(form_frame, text="Education Board:", font=labels_font, bg="white").grid(row=3, column=0, sticky="w", pady=5)
-board_combobox = ttk.Combobox(form_frame, values=["CBSE", "State Board"], width=22, state="readonly")
-board_combobox.grid(row=3, column=1, pady=5, padx=10)
+        # Clamp the score dynamically between 0 and 100
+        predicted_score = min(100, max(0, round(predicted_score)))
 
-# Subject Selection Dropdown
-tk.Label(form_frame, text="Subject Focus:", font=labels_font, bg="white").grid(row=4, column=0, sticky="w", pady=5)
-subject_combobox = ttk.Combobox(form_frame, values=["Mathematics", "Science", "English", "Social Science"], width=22, state="readonly")
-subject_combobox.grid(row=4, column=1, pady=5, padx=10)
+        # Performance Feedback Analysis strings
+        if predicted_score >= 90:
+            feedback_type = "success"
+            feedback_text = f"🏆 **Outstanding performance pattern, {name}!** Your daily study routine aligns perfectly with top-tier board evaluation standards. Keep maintaining this consistency across your {subject} portions!"
+        elif predicted_score >= 75:
+            feedback_type = "info"
+            feedback_text = f"👍 **Great foundation, {name}!** You have built a solid grasp over the curriculum. Reviewing sample papers and handling complex questions will easily push you past the 90 mark."
+        elif predicted_score >= 50:
+            feedback_type = "warning"
+            feedback_text = f"⚠️ **Good baseline, {name}.** However, the {board} portions for {subject} require slightly more core dedication. Increasing your study time by 1.5 to 2 hours daily will yield significant improvements."
+        else:
+            feedback_type = "error"
+            feedback_text = f"🛑 **Attention needed, {name}.** Your current hours are falling short for the depth of {student_class} requirements. We highly suggest breaking down the syllabus portions systematically."
 
-# Daily Study Hours
-tk.Label(form_frame, text="Daily Study Hours:", font=labels_font, bg="white").grid(row=5, column=0, sticky="w", pady=5)
-hours_entry = tk.Entry(form_frame, font=("Segoe UI", 10), width=25)
-hours_entry.grid(row=5, column=1, pady=5, padx=10)
+        # --- Display Output Metrics & Feedback ---
+        st.markdown("---")
+        st.subheader("📋 Performance Analysis Report")
+        
+        # Displaying key metrics cleanly
+        m_col1, m_col2, m_col3 = st.columns(3)
+        m_col1.metric("Student", name, f"Age {age}")
+        m_col2.metric("Curriculum Focus", f"{board}", student_class)
+        m_col3.metric("Target Subject", subject)
 
-# Submit Button
-submit_btn = tk.Button(form_frame, text="Analyze & Predict Score", font=("Segoe UI", 11, "bold"), bg="#3498db", fg="white", bd=0, cursor="hand2", command=analyze_and_predict)
-submit_btn.grid(row=6, column=0, columnspan=2, pady=20, ipadx=10, ipady=5, sticky="ew")
+        # Highlighted Predicted Score Box
+        st.markdown(f"### 🎯 Predicted Exam Score: `{predicted_score} / 100`")
 
-# Result Display Box (Hidden on startup)
-result_frame = tk.LabelFrame(root, text=" Analysis Output ", font=("Segoe UI", 10, "bold"), bg="#f4fbf7", fg="#27ae60", bd=2, padx=15, pady=15)
-result_label = tk.Label(result_frame, text="", font=("Segoe UI", 10), bg="#f4fbf7", justify="left", fg="#2c3e50")
-result_label.pack()
-
-# Keep window running
-root.mainloop()
+        # Dynamic alerting display based on performance bracket
+        if feedback_type == "success":
+            st.success(feedback_text)
+        elif feedback_type == "info":
+            st.info(feedback_text)
+        elif feedback_type == "warning":
+            st.warning(feedback_text)
+        else:
+            st.error(feedback_text)
