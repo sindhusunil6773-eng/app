@@ -1,11 +1,6 @@
 import streamlit as st
-
-# --- Page Configuration ---
-st.set_page_config(page_title="Student Exam Score Predictor", page_icon="📊", layout="centered")
-
-# --- App Header ---
 st.title("📊 Student Exam Score Predictor")
-st.write("Enter your academic details below to get a detailed portion analysis and score prediction.")
+st.write("Enter your academic details ")
 st.markdown("---")
 
 # --- Form Inputs ---
@@ -50,7 +45,7 @@ if submit_button:
 
         # Board Portion Evaluation Adjustments
         if board == "CBSE":
-            predicted_score += 3  # CBSE focus on continuous application questions
+            predicted_score += 5  # CBSE focus on continuous application questions
         else:
             predicted_score += 1  # State Board direct concept formatting
 
@@ -70,7 +65,7 @@ if submit_button:
         elif predicted_score >= 75:
             feedback_type = "info"
             feedback_text = f"👍 **Great foundation, {name}!** You have built a solid grasp over the curriculum. Reviewing sample papers and handling complex questions will easily push you past the 90 mark."
-        elif predicted_score >= 50:
+        elif predicted_score >= 30:
             feedback_type = "warning"
             feedback_text = f"⚠️ **Good baseline, {name}.** However, the {board} portions for {subject} require slightly more core dedication. Increasing your study time by 1.5 to 2 hours daily will yield significant improvements."
         else:
